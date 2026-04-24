@@ -1,0 +1,17 @@
+package com.medishop.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.medishop.OnlineMedicineShop.model.Cart;
+
+public interface CartRepository extends JpaRepository<Cart, Long> {
+    List<Cart> findByUserId(Long userId);
+    Optional<Cart> findByUserIdAndMedicineId(Long userId, Long medicineId);
+
+    @Transactional
+    void deleteByUserId(Long userId);
+}

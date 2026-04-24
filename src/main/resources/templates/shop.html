@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/theme.css"/>
+<script src="/theme.js"></script>
+    <title>Shop - MediShop</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f4f6f8; }
+        .navbar { background: #0d5c35; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .navbar .logo { color: white; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .nav-links { display: flex; align-items: center; gap: 6px; }
+        .nav-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 13px; padding: 7px 14px; border-radius: 7px; transition: all 0.2s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .nav-links a.active { background: rgba(255,255,255,0.2); color: white; }
+        .welcome { color: rgba(255,255,255,0.7); font-size: 13px; margin-right: 8px; }
+        .container { max-width: 1200px; margin: 28px auto; padding: 0 20px; }
+        .search-section { background: white; border-radius: 14px; padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .search-row input { flex: 1; padding: 11px 16px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 14px; outline: none; min-width: 200px; transition: border 0.2s; }
+        .search-row input:focus { border-color: #1a7a4a; }
+        .search-row select { padding: 11px 14px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 14px; outline: none; background: white; }
+        .search-row button { padding: 11px 22px; background: #1a7a4a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .search-row button:hover { background: #0d5c35; }
+        .search-row a { padding: 11px 16px; background: #f0f0f0; color: #555; border-radius: 8px; text-decoration: none; font-size: 14px; }
+        .cat-pills { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .pill { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid #e0e0e0; background: white; color: #555; text-decoration: none; transition: all 0.2s; }
+        .pill:hover, .pill.active { background: #1a7a4a; color: white; border-color: #1a7a4a; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-header h2 { font-size: 18px; color: #1a1a1a; font-weight: 700; }
+        .result-count { font-size: 13px; color: #888; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+        .card { background: white; border-radius: 14px; overflow: hidden; border: 1px solid #eee; transition: all 0.2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .card-img { background: linear-gradient(135deg, #e8f5ee, #f0faf5); height: 100px; display: flex; align-items: center; justify-content: center; font-size: 42px; }
+        .card-body { padding: 14px; }
+        .card-name { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+        .card-brand { font-size: 12px; color: #999; margin-bottom: 8px; }
+        .badge-row { margin-bottom: 10px; }
+        .rx { background: #fff0f0; color: #c0392b; font-size: 11px; padding: 3px 8px; border-radius: 5px; font-weight: 600; }
+        .otc { background: #e8f5ee; color: #0d5c35; font-size: 11px; padding: 3px 8px; border-radius: 5px; font-weight: 600; }
+        .card-footer { display: flex; align-items: center; justify-content: space-between; }
+        .price { font-size: 18px; font-weight: 700; color: #0d5c35; }
+        .add-btn { background: #1a7a4a; color: white; border: none; padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .add-btn:hover { background: #0d5c35; }
+        .empty { text-align: center; padding: 60px; color: #aaa; }
+        .empty p { font-size: 16px; margin-bottom: 12px; }
+        @media (max-width: 600px) {
+            .navbar { padding: 12px 16px; }
+            .container { padding: 0 12px; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">💊 MediShop</div>
+    <div class="nav-links">
+        <span class="welcome" th:if="${session.user}">Hi, <span th:text="${session.user.name}"></span>!</span>
+       <a href="/shop" class="active" data-i18n="shop">Shop</a>
+       <a href="/orders" data-i18n="orders">My Orders</a>
+        <a th:if="${session.user != null and session.user.role == 'ADMIN'}" href="/admin/dashboard">Dashboard</a>
+        <a th:unless="${session.user != null and session.user.role == 'ADMIN'}" href="/cart">🛒 Cart</a>
+        <a href="/settings">⚙ Settings</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="search-section">
+        <form method="get" action="/shop" class="search-row">
+            <input type="text" name="search" placeholder="Search medicines, brands..." th:value="${search}"/>
+            <select name="category">
+                <option value="">All Categories</option>
+                <option value="OTC" th:selected="${category == 'OTC'}">OTC</option>
+                <option value="Prescription" th:selected="${category == 'Prescription'}">Prescription</option>
+                <option value="Supplements" th:selected="${category == 'Supplements'}">Supplements</option>
+            </select>
+            <button type="submit">Search</button>
+            <a href="/shop">Clear</a>
+        </form>
+        <div class="cat-pills">
+            <a href="/shop" class="pill">All</a>
+            <a href="/shop?category=OTC" class="pill">OTC</a>
+            <a href="/shop?category=Prescription" class="pill">Prescription</a>
+            <a href="/shop?category=Supplements" class="pill">Supplements</a>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <h2>Available Medicines</h2>
+        <span class="result-count" th:text="${#lists.size(medicines)} + ' medicines found'"></span>
+    </div>
+
+    <div th:if="${#lists.isEmpty(medicines)}" class="empty">
+        <p>No medicines found.</p>
+        <a href="/shop" style="color:#1a7a4a;font-weight:600;">View all medicines</a>
+    </div>
+
+    <div class="grid">
+        <div class="card" th:each="med : ${medicines}">
+            <div class="card-img">💊</div>
+            <div class="card-body">
+                <a th:href="@{/medicine/{id}(id=${med.id})}" style="text-decoration:none;">
+    <div class="card-name" th:text="${med.name}"></div>
+</a>
+                <div class="card-brand" th:text="${med.brand}"></div>
+                <div class="badge-row">
+                    <span class="rx" th:if="${med.requiresPrescription}">Rx Required</span>
+                    <span class="otc" th:unless="${med.requiresPrescription}">OTC</span>
+                </div>
+                <div class="card-footer">
+                    <div class="price" th:text="'₹' + ${med.price}"></div>
+                    <form method="post" action="/cart/add">
+                        <input type="hidden" name="medicineId" th:value="${med.id}"/>
+                        <input type="hidden" name="quantity" value="1"/>
+                        <button class="add-btn" type="submit">+ Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

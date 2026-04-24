@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/theme.css"/>
+<script src="/theme.js"></script>
+    <title>My Orders - MediShop</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f4f6f8; }
+        .navbar { background: #0d5c35; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .navbar .logo { color: white; font-size: 20px; font-weight: 700; }
+        .nav-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 13px; padding: 7px 14px; border-radius: 7px; transition: all 0.2s; margin-left: 4px; }
+        .nav-links a:hover { background: rgba(255,255,255,0.15); }
+        .container { max-width: 860px; margin: 28px auto; padding: 0 20px; }
+        h2 { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
+        .order-card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 16px; border: 1px solid #eee; }
+        .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .order-id { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+        .order-date { font-size: 12px; color: #999; margin-top: 3px; }
+        .status-badge { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .PENDING { background: #fff3cd; color: #856404; }
+        .CONFIRMED { background: #d1ecf1; color: #0c5460; }
+        .SHIPPED { background: #cce5ff; color: #004085; }
+        .DELIVERED { background: #d4edda; color: #155724; }
+        .CANCELLED { background: #f8d7da; color: #721c24; }
+        .items-list { border-top: 1px solid #f5f5f5; padding-top: 12px; margin-bottom: 12px; }
+        .item-line { display: flex; justify-content: space-between; font-size: 13px; color: #555; padding: 5px 0; }
+        .order-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 12px; }
+        .order-total { font-size: 16px; font-weight: 700; color: #0d5c35; }
+        .order-address { font-size: 12px; color: #999; }
+        .tracking { margin-top: 16px; padding-top: 16px; border-top: 1px solid #f5f5f5; }
+        .tracking-label { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 12px; }
+        .steps { display: flex; justify-content: space-between; position: relative; }
+        .steps::before { content: ''; position: absolute; top: 13px; left: 0; right: 0; height: 2px; background: #e8e8e8; z-index: 0; }
+        .progress-line { position: absolute; top: 13px; left: 0; height: 2px; background: #1a7a4a; z-index: 1; transition: width 0.5s; }
+        .step { display: flex; flex-direction: column; align-items: center; z-index: 2; }
+        .dot { width: 28px; height: 28px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #aaa; border: 2px solid #e8e8e8; transition: all 0.3s; }
+        .dot.done { background: #1a7a4a; border-color: #1a7a4a; color: white; font-weight: 700; }
+        .step-name { font-size: 11px; color: #aaa; margin-top: 6px; font-weight: 500; }
+        .step-name.done { color: #0d5c35; font-weight: 700; }
+        .empty { text-align: center; padding: 60px; color: #aaa; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">💊 MediShop</div>
+    <div class="nav-links">
+        <a href="/shop">Shop</a>
+        <a href="/cart">Cart</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <h2>My Orders</h2>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="empty">
+        <p style="font-size:16px;margin-bottom:12px;">No orders yet!</p>
+        <a href="/shop" style="color:#1a7a4a;font-weight:600;">Start Shopping</a>
+    </div>
+
+    <div th:each="order : ${orders}" class="order-card">
+        <div class="order-header">
+            <div>
+                <div class="order-id">Order #<span th:text="${order.id}"></span></div>
+                <div class="order-date" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, hh:mm a')}"></div>
+            </div>
+            <span class="status-badge" th:classappend="${order.status}" th:text="${order.status}"></span>
+        </div>
+
+        <div class="items-list">
+            <div th:each="item : ${order.items}" class="item-line">
+                <span>💊 <span th:text="${item.medicine.name}"></span> x<span th:text="${item.quantity}"></span></span>
+                <span th:text="'₹' + ${item.price * item.quantity}"></span>
+            </div>
+        </div>
+
+        <div class="order-footer">
+            <div class="order-address">📍 <span th:text="${order.address}"></span></div>
+            <div class="order-total">Total: ₹<span th:text="${order.totalAmount}"></span></div>
+        </div>
+
+        <div class="tracking">
+            <div class="tracking-label">Order Tracking</div>
+            <div class="steps">
+                <div class="progress-line"
+                     th:style="${order.status == 'PENDING'} ? 'width:0%' :
+                               (${order.status == 'CONFIRMED'} ? 'width:33%' :
+                               (${order.status == 'SHIPPED'} ? 'width:66%' :
+                               (${order.status == 'DELIVERED'} ? 'width:100%' : 'width:0%')))">
+                </div>
+                <div class="step">
+                    <div class="dot done">✓</div>
+                    <div class="step-name done">Placed</div>
+                </div>
+                <div style="margin-top:12px;" th:if="${order.status == 'PENDING'}">
+    <form method="post" th:action="@{/orders/cancel/{id}(id=${order.id})}">
+        <button type="submit"
+                style="background:#fff0f0;color:#e74c3c;border:1px solid #ffcccc;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;"
+                onclick="return confirm('Are you sure you want to cancel this order?')">
+            Cancel Order
+        </button>
+    </form>
+</div>
+                <div class="step">
+                    <div class="dot" th:classappend="${order.status == 'CONFIRMED' or order.status == 'SHIPPED' or order.status == 'DELIVERED'} ? 'done' : ''">
+                        <span th:text="${order.status == 'CONFIRMED' or order.status == 'SHIPPED' or order.status == 'DELIVERED'} ? '✓' : '2'"></span>
+                    </div>
+                    <div class="step-name" th:classappend="${order.status == 'CONFIRMED' or order.status == 'SHIPPED' or order.status == 'DELIVERED'} ? 'done' : ''">Confirmed</div>
+                </div>
+                <div class="step">
+                    <div class="dot" th:classappend="${order.status == 'SHIPPED' or order.status == 'DELIVERED'} ? 'done' : ''">
+                        <span th:text="${order.status == 'SHIPPED' or order.status == 'DELIVERED'} ? '✓' : '3'"></span>
+                    </div>
+                    <div class="step-name" th:classappend="${order.status == 'SHIPPED' or order.status == 'DELIVERED'} ? 'done' : ''">Shipped</div>
+                </div>
+                <div class="step">
+                    <div class="dot" th:classappend="${order.status == 'DELIVERED'} ? 'done' : ''">
+                        <span th:text="${order.status == 'DELIVERED'} ? '✓' : '4'"></span>
+                    </div>
+                    <div class="step-name" th:classappend="${order.status == 'DELIVERED'} ? 'done' : ''">Delivered</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

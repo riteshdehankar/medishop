@@ -1,0 +1,31 @@
+:root {
+    --bg: #f4f6f8;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #888888;
+    --border: #eeeeee;
+    --input-bg: #fafafa;
+    --navbar-bg: #0d5c35;
+    --shadow: rgba(0,0,0,0.06);
+}
+
+[data-theme="dark"] {
+    --bg: #0f1117;
+    --card-bg: #1a1d27;
+    --text: #e8e8e8;
+    --text-muted: #8a8a9a;
+    --border: #2a2d3a;
+    --input-bg: #22253a;
+    --navbar-bg: #071f12;
+    --shadow: rgba(0,0,0,0.3);
+}
+
+body { background: var(--bg) !important; color: var(--text) !important; transition: background 0.3s, color 0.3s; }
+.card, .order-card, .cart-item, .search-section, .summary-box, .add-form, .table-wrap, .stat-card { background: var(--card-bg) !important; border-color: var(--border) !important; color: var(--text) !important; }
+.navbar { background: var(--navbar-bg) !important; }
+input, select, textarea { background: var(--input-bg) !important; color: var(--text) !important; border-color: var(--border) !important; }
+table th { background: var(--navbar-bg) !important; }
+table td { color: var(--text) !important; border-color: var(--border) !important; }
+h2, h3, .card-name, .item-name, .med-name, .order-id, .stat-num, .page-title, .section-title, .card-title { color: var(--text) !important; }
+.card-brand, .item-brand, .order-date, .result-count, .setting-desc { color: var(--text-muted) !important; }
+.lang-btn { background: var(--card-bg) !important; border-color: var(--border) !important; color: var(--text) !important; }
